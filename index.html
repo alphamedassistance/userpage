@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alphamed Nexus | Technology Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Base & Background --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(147, 51, 234, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* --- Glassmorphism Card (Active Apps) --- */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.15), 0 10px 10px -5px rgba(59, 130, 246, 0.1);
+            border-color: #60a5fa;
+        }
+
+        /* Interactive Text Reveal */
+        .interactive-def {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, opacity 0.5s ease, margin-top 0.5s ease;
+            opacity: 0;
+        }
+
+        .glass-card:hover .interactive-def {
+            max-height: 120px;
+            opacity: 1;
+            margin-top: 1rem;
+        }
+        
+        /* --- "Coming Soon" Special Section --- */
+        .mystery-box {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 1.5rem;
+            color: white;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Animated Glow Background for Mystery Box */
+        .mystery-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, rgba(56, 189, 248, 0.3), transparent 30%);
+            animation: rotate 4s linear infinite;
+        }
+
+        .mystery-content {
+            position: relative;
+            background: rgba(15, 23, 42, 0.9);
+            width: calc(100% - 4px);
+            height: calc(100% - 4px);
+            border-radius: 1.4rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(1turn); }
+        }
+
+        /* --- Iframe & Utility --- */
+        .embedded-iframe-github {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            display: block;
+        }
+
+        .iframe-cropper-wrapper {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 50;
+            background: white;
+        }
+
+        /* Spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2563eb;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-blue-200 selection:text-blue-900">
+
+    <div id="loading-spinner" class="hidden fixed inset-0 z-[60] flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm">
+        <div class="loader mb-4"></div>
+        <p class="text-blue-600 font-bold text-lg animate-pulse">Connecting to Alphamed Nexus...</p>
+    </div>
+
+    <div id="iframe-container" class="hidden relative z-50"></div>
+
+    <div id="header" class="transition-all duration-700 ease-in-out">
+        
+        <nav class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
+            <div class="max-w-7xl mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-bold tracking-tight text-slate-900 leading-none">
+                            Alphamed<span class="text-blue-600">Nexus</span>
+                        </h1>
+                        <p class="text-[0.65rem] font-bold text-slate-400 tracking-widest uppercase">Integrated Technology Platforms</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-semibold text-slate-500 hidden sm:inline-block">System Online</span>
+                </div>
+            </div>
+        </nav>
+
+        <section class="relative pt-16 pb-20 px-4 text-center overflow-hidden">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-blue-400/10 rounded-full blur-3xl -z-10"></div>
+            
+            <div class="max-w-4xl mx-auto">
+                <span class="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                    The Future of Living
+                </span>
+                <h2 class="text-5xl md:text-7xl font-black text-slate-900 leading-tight mb-8 tracking-tight">
+                    Technology Advancing<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400">Daily Life.</span>
+                </h2>
+                <p class="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+                    Alphamed Nexus bridges the gap between complex data systems and your daily workflow. Experience seamless integration of monitoring, automation, and resource control.
+                </p>
+            </div>
+        </section>
+
+        <section class="px-4 md:px-8 pb-24 max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+
+                <div class="glass-card rounded-3xl p-8 flex flex-col relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                        <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="text-3xl font-bold text-slate-900">Vitalis</h3>
+                        <span class="inline-block mt-1 px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-bold">Ver 1.0</span>
+                    </div>
+                    <p class="text-slate-600 font-medium">Your personal health companion. Monitor and track your overall health status with ease.</p>
+                    
+                    <div class="interactive-def text-sm text-slate-500 border-l-2 border-blue-400 pl-4">
+                        <p>Real-time analytics, BMI tracking, and heart-rate history visualization designed for proactive wellness.</p>
+                    </div>
+                    
+                    <div class="mt-auto w-full pt-8 relative z-10">
+                        <button id="btn-vitalis" class="w-full bg-slate-900 text-white font-bold py-4 px-6 rounded-2xl hover:bg-blue-600 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 transform group-hover:translate-y-[-2px] flex items-center justify-center gap-2">
+                            <span>Register & Download</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-3xl p-8 flex flex-col relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                        <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="text-3xl font-bold text-slate-900">MediTrack</h3>
+                        <span class="inline-block mt-1 px-2 py-0.5 rounded bg-purple-100 text-purple-700 text-xs font-bold">Ver 1.0</span>
+                    </div>
+                    <p class="text-slate-600 font-medium">Never miss a dose again. Manage your medication schedules and receive timely reminders.</p>
+                    
+                    <div class="interactive-def text-sm text-slate-500 border-l-2 border-purple-400 pl-4">
+                        <p>Automated push notifications, dosage history logs, and adherence reports synchronizing your treatment plan.</p>
+                    </div>
+
+                    <div class="mt-auto w-full pt-8 relative z-10">
+                        <button id="btn-meditrack" class="w-full bg-slate-900 text-white font-bold py-4 px-6 rounded-2xl hover:bg-purple-600 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 transform group-hover:translate-y-[-2px] flex items-center justify-center gap-2">
+                            <span>Register & Download</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-3xl p-8 flex flex-col relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                        <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"></path><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="text-3xl font-bold text-slate-900">RxStocks</h3>
+                        <span class="inline-block mt-1 px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 text-xs font-bold">Pro Ver 1.0</span>
+                    </div>
+                    <p class="text-slate-600 font-medium">Inventory management simplified. Keep track of daily medication counts and supplies.</p>
+                    
+                    <div class="interactive-def text-sm text-slate-500 border-l-2 border-emerald-400 pl-4">
+                        <p>Low-stock alerts, expiration date tracking, and automated reorder suggestions to prevent critical stock-outs.</p>
+                    </div>
+
+                    <div class="mt-auto w-full pt-8 relative z-10">
+                        <button id="btn-rxstocks" class="w-full bg-slate-900 text-white font-bold py-4 px-6 rounded-2xl hover:bg-emerald-600 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 transform group-hover:translate-y-[-2px] flex items-center justify-center gap-2">
+                            <span>Register & Download</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mystery-box shadow-2xl">
+                <div class="mystery-content">
+                    <div class="flex flex-col items-center">
+                        <div class="mb-4 flex gap-2">
+                            <span class="w-3 h-3 bg-cyan-400 rounded-full animate-bounce"></span>
+                            <span class="w-3 h-3 bg-blue-500 rounded-full animate-bounce delay-100"></span>
+                            <span class="w-3 h-3 bg-purple-500 rounded-full animate-bounce delay-200"></span>
+                        </div>
+                        <h3 class="text-3xl md:text-5xl font-black tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-blue-300 mb-2 drop-shadow-lg">
+                            More Helpful Apps
+                        </h3>
+                        <h3 class="text-2xl md:text-4xl font-light tracking-[0.5em] text-blue-200 opacity-80 uppercase">
+                            Soon to Release
+                        </h3>
+                        <div class="mt-6 px-6 py-2 border border-blue-500/30 rounded-full bg-blue-900/20">
+                            <span class="text-xs text-blue-300 tracking-widest font-bold">DEVELOPMENT IN PROGRESS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="mt-20 text-center text-slate-400 text-sm border-t border-slate-200 pt-8">
+                &copy; 2024 Alphamed Nexus. Empowering Innovation Through Technology. All rights reserved.
+            </footer>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const iframeContainer = document.getElementById('iframe-container');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const header = document.getElementById('header'); 
+            
+            // URLs
+            const urls = {
+                vitalis: 'https://alphamedassistance.github.io/vitalisportal/',
+                meditrack: 'https://alphamedassistance.github.io/meditrackportal/',
+                rxstocks: 'https://alphamedassistance.github.io/rxstocksportal/'
+            };
+
+            const loadIframe = (embedUrl, clickedButton, iframeClass) => {
+                loadingSpinner.classList.remove('hidden');
+                
+                if (clickedButton) {
+                    clickedButton.disabled = true; 
+                    clickedButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    clickedButton.innerHTML = '<span>Loading...</span>';
+                }
+
+                if(header) {
+                    header.classList.add('opacity-0', 'scale-95', 'blur-sm');
+                }
+                
+                const iframeWrapper = document.createElement('div');
+                iframeWrapper.classList.add('iframe-cropper-wrapper');
+
+                const iframe = document.createElement('iframe');
+                iframe.src = embedUrl;
+                iframe.id = 'embedded-link';
+                iframe.classList.add(iframeClass);
+                
+                iframe.onload = () => {
+                    loadingSpinner.classList.add('hidden');
+                    iframe.style.opacity = '1'; 
+                };
+                
+                iframe.onerror = () => {
+                    loadingSpinner.classList.add('hidden');
+                    iframeContainer.innerHTML = '<div class="flex h-screen items-center justify-center"><p class="text-red-500 p-6 bg-red-100 rounded-xl font-bold">Error loading content. Please reload.</p></div>';
+                };
+
+                iframeWrapper.appendChild(iframe);
+                iframeContainer.appendChild(iframeWrapper);
+
+                // Exit Button
+                const exitButton = document.createElement('button');
+                exitButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>`;
+                exitButton.classList.add(
+                    'fixed', 'top-4', 'right-4', 'z-[100]', 'bg-red-500', 'text-white', 'p-3',
+                    'rounded-full', 'shadow-2xl', 'hover:bg-red-600', 'transition', 'transform', 'hover:scale-110',
+                    'flex', 'items-center', 'justify-center', 'cursor-pointer'
+                );
+                
+                exitButton.onclick = () => window.location.reload();
+                
+                setTimeout(() => {
+                    if(header) header.classList.add('hidden');
+                    iframeContainer.classList.remove('hidden');
+                    document.body.appendChild(exitButton);
+                    document.body.classList.add('overflow-hidden');
+                }, 400); 
+            };
+
+            // Event Listeners
+            const btnVitalis = document.getElementById('btn-vitalis');
+            if(btnVitalis) btnVitalis.addEventListener('click', () => loadIframe(urls.vitalis, btnVitalis, 'embedded-iframe-github'));
+
+            const btnMediTrack = document.getElementById('btn-meditrack');
+            if(btnMediTrack) btnMediTrack.addEventListener('click', () => loadIframe(urls.meditrack, btnMediTrack, 'embedded-iframe-github'));
+
+            const btnRxStocks = document.getElementById('btn-rxstocks');
+            if(btnRxStocks) btnRxStocks.addEventListener('click', () => loadIframe(urls.rxstocks, btnRxStocks, 'embedded-iframe-github'));
+        });
+    </script>
+</body>
+</html>
